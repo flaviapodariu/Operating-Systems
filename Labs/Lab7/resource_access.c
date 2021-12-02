@@ -37,10 +37,11 @@ void* resource_manager(void* arg)
 {
     int count = *(int*) arg;
 
-    decrease_count(count);
-    // sleep(0.5);
-    increase_count(count);
- 
+    if(decrease_count(count) != -1)
+    {
+       sleep(0.5);
+       increase_count(count);
+    }
 }
 
 int main()
