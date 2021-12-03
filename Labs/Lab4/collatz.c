@@ -15,7 +15,7 @@ int main(int argc, char** argv)
     if(pid > 0)
       {
           pid_t child_pid = wait(NULL);
-          printf("\nChild %d finished.", getppid());
+          printf("\nChild %d finished.", child_pid);
       }
 
     else
