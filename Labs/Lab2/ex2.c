@@ -16,7 +16,7 @@ int mycp(char* fisier1, char* fisier2)
        return errno;
     }
     
-    fd2 = open(fisier2, O_CREAT | O_RDWR); // ca sa pot verifica daca s-a scris 
+    fd2 = open(fisier2, O_CREAT | O_RDWR, S_IRWXU); // ca sa pot verifica daca s-a scris 
     if(fd2 < 0)
     {
        perror("Output file could not be opened");
@@ -30,7 +30,7 @@ int mycp(char* fisier1, char* fisier2)
     
     while(n1 > 0)
     {  
-      n2 = write(fd2, buff, strlen(buff));
+      n2 = write(fd2, buff, n1);
       if(n2 < 0)
       {
          perror("File could not be written");
