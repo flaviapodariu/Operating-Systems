@@ -23,10 +23,11 @@ void DFS(pid_t current_proc, int level)
          printf("Level:%d, PID:%d, PPID:%d, Name:%s, Stats:%d\n ",level,kinfo[i].p_pid,
 kinfo[i].p_ppid, kinfo[i].p_comm, kinfo[i].p_stat);
          char* temp_buffer = (char*)malloc(sizeof(char)*10);
-         sprintf(temp_buffer, "%d", kinfo[i].p_pid);
+         snprintf(temp_buffer,sizeof(temp_buffer), "%d",
+kinfo[i].p_pid);
 
-         strcat(tree[level],temp_buffer);
-         strcat(tree[level], " ");
+         strncat(tree[level],temp_buffer, strlen(temp_buffer));
+         strncat(tree[level], " ", 1);
          free(temp_buffer);
          DFS(kinfo[i].p_pid, level + 1);
        }
@@ -38,11 +39,20 @@ main(void)
 {
   char errbuf[_POSIX2_LINE_MAX];
   kvm_t *kernel = kvm_openfiles(NULL, NULL, NULL, KVM_NO_FILES, errbuf);
-  int i;
+  if(kernel == NULL)
+  {
+    printf("%s\n", errbuf);
+    return 0;
+ int i;
 //select a parent process
   kinfo = kvm_getprocs(kernel, KERN_PROC_ALL, 0,sizeof(struct kinfo_proc), &nentries);
-
+  if(kinfo == NULL)
+  {
+    printf("Could not get processes.");
+    return 0;
+  }
   tree = (char**)malloc(sizeof(char)*nentries);
+
   for(i = 0; i < nentries; i++)
     tree[i] = (char*)malloc(sizeof(char)*100);
 
@@ -50,7 +60,6 @@ main(void)
    {
      if(strcmp(kinfo[i].p_comm, "init") == 0)
          break;
-
    }
 // get the parent's children processes
   pid_t parent = kinfo[i].p_pid;
@@ -65,7 +74,8 @@ kinfo[i].p_pid);
   printf("\n\n");
 
 //print tree of pids
- printf("LEVEL 0 -> PARENT: %d\n", kinfo[i].p_pid);
+
+  printf("LEVEL 0 (PARENT) -> %d\n", kinfo[i].p_pid);
   for(i = 1; i < max_depth; i++)
      printf("LEVEL %d -> %s\n",i, tree[i]);
 
